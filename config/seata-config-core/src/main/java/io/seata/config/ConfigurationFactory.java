@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,13 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.config;
 
 import io.seata.common.exception.NotSupportYetException;
 import io.seata.common.loader.EnhancedServiceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -27,10 +24,9 @@ import java.util.Objects;
  * The type Configuration factory.
  *
  * @author jimin.jm @alibaba-inc.com
- * @date 2018 /12/24
+ * @author Geng Zhang
  */
 public final class ConfigurationFactory {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFactory.class);
     private static final String REGISTRY_CONF = "registry.conf";
     /**
      * The constant FILE_INSTANCE.
@@ -39,20 +35,33 @@ public final class ConfigurationFactory {
     private static final String NAME_KEY = "name";
     private static final String FILE_TYPE = "file";
 
+    private static volatile Configuration CONFIG_INSTANCE = null;
+
     /**
      * Gets instance.
      *
      * @return the instance
      */
     public static Configuration getInstance() {
+        if (CONFIG_INSTANCE == null) {
+            synchronized (Configuration.class) {
+                if (CONFIG_INSTANCE == null) {
+                    CONFIG_INSTANCE = buildConfiguration();
+                }
+            }
+        }
+        return CONFIG_INSTANCE;
+    }
+
+    private static Configuration buildConfiguration() {
         ConfigType configType = null;
         String configTypeName = null;
         try {
             configTypeName = FILE_INSTANCE.getConfig(ConfigurationKeys.FILE_ROOT_CONFIG + ConfigurationKeys.FILE_CONFIG_SPLIT_CHAR
                 + ConfigurationKeys.FILE_ROOT_TYPE);
             configType = ConfigType.getType(configTypeName);
-        } catch (Exception exx) {
-            throw new NotSupportYetException("not support register type: " + configTypeName);
+        } catch (Exception e) {
+            throw new NotSupportYetException("not support register type: " + configTypeName, e);
         }
         if (ConfigType.File == configType) {
             String pathDataId = ConfigurationKeys.FILE_ROOT_CONFIG + ConfigurationKeys.FILE_CONFIG_SPLIT_CHAR

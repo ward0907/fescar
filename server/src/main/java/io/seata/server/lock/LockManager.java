@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.server.lock;
 
 import io.seata.core.exception.TransactionException;
@@ -36,15 +35,24 @@ public interface LockManager {
     boolean acquireLock(BranchSession branchSession) throws TransactionException;
 
     /**
-     * Is lockable boolean.
+     * Un lock boolean.
      *
-     * @param transactionId the transaction id
-     * @param resourceId    the resource id
-     * @param lockKey       the lock key
+     * @param branchSession the branch session
      * @return the boolean
      * @throws TransactionException the transaction exception
      */
-    boolean isLockable(long transactionId, String resourceId, String lockKey) throws TransactionException;
+    boolean releaseLock(BranchSession branchSession) throws TransactionException;
+
+    /**
+     * Is lockable boolean.
+     *
+     * @param xid        the xid
+     * @param resourceId the resource id
+     * @param lockKey    the lock key
+     * @return the boolean
+     * @throws TransactionException the transaction exception
+     */
+    boolean isLockable(String xid, String resourceId, String lockKey) throws TransactionException;
 
     /**
      * Clean all locks.
@@ -52,4 +60,5 @@ public interface LockManager {
      * @throws TransactionException the transaction exception
      */
     void cleanAllLocks() throws TransactionException;
+
 }

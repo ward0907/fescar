@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,17 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.datasource.undo;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import io.seata.common.loader.LoadLevel;
 
 /**
  * The type Json based undo log parser.
  *
  * @author sharajava
  */
+@LoadLevel(name = "fastjson")
 public class JSONBasedUndoLogParser implements UndoLogParser {
 
     @Override

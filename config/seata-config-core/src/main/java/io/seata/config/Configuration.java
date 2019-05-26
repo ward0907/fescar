@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.config;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -80,6 +80,33 @@ public interface Configuration<T> {
      * @return the long
      */
     long getLong(String dataId);
+
+    /**
+     * Gets duration.
+     *
+     * @param dataId
+     * @return the duration
+     */
+    Duration getDuration(String dataId);
+
+    /**
+     * Gets duration.
+     *
+     * @param   dataId
+     * @param   defaultValue
+     * @return  the duration
+     */
+    Duration getDuration(String dataId, Duration defaultValue);
+
+    /**
+     * Gets duration.
+     *
+     * @param   dataId
+     * @param   defaultValue
+     * @param   timeoutMills
+     * @return  he duration
+     */
+    Duration getDuration(String dataId, Duration defaultValue, long timeoutMills);
 
     /**
      * Gets boolean.

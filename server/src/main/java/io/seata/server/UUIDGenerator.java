@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.server;
 
 import java.text.ParseException;
@@ -51,6 +50,27 @@ public class UUIDGenerator {
             }
         }
         return id;
+    }
+
+    /**
+     * Gets current uuid.
+     *
+     * @return the current uuid
+     */
+    public static long getCurrentUUID() {
+        return UUID.get();
+    }
+
+    /**
+     * Sets uuid.
+     *
+     * @param expect the expect
+     * @param update the update
+     * @return the uuid
+     */
+    public static boolean setUUID(long expect, long update) {
+        return UUID.compareAndSet(expect, update);
+
     }
 
     /**

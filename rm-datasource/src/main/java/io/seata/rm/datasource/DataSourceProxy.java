@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,17 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.datasource;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
 import com.alibaba.druid.util.JdbcUtils;
+
 import io.seata.core.model.BranchType;
 import io.seata.core.model.Resource;
 import io.seata.rm.DefaultResourceManager;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * The type Data source proxy.
@@ -66,7 +67,7 @@ public class DataSourceProxy extends AbstractDataSourceProxy implements Resource
             jdbcUrl = connection.getMetaData().getURL();
             dbType = JdbcUtils.getDbType(jdbcUrl, null);
         } catch (SQLException e) {
-            throw new IllegalStateException(String.format("can not init dataSource :%s", e.getSQLState()));
+            throw new IllegalStateException("can not init dataSource", e);
         }
         DefaultResourceManager.get().registerResource(this);
     }

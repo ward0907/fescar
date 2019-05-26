@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.exception;
 
+import io.seata.config.Configuration;
+import io.seata.config.ConfigurationFactory;
 import io.seata.core.protocol.ResultCode;
 import io.seata.core.protocol.transaction.AbstractTransactionRequest;
 import io.seata.core.protocol.transaction.AbstractTransactionResponse;
@@ -26,6 +27,11 @@ import io.seata.core.protocol.transaction.AbstractTransactionResponse;
  * @author sharajava
  */
 public abstract class AbstractExceptionHandler {
+
+    /**
+     * The constant CONFIG.
+     */
+    protected static final Configuration CONFIG = ConfigurationFactory.getInstance();
 
     /**
      * The interface Callback.
@@ -42,6 +48,56 @@ public abstract class AbstractExceptionHandler {
          * @throws TransactionException the transaction exception
          */
         void execute(T request, S response) throws TransactionException;
+
+        /**
+         * on Success
+         *
+         * @param request
+         * @param response
+         */
+        void onSuccess(T request, S response);
+
+        /**
+         * onTransactionException
+         *
+         * @param request
+         * @param response
+         * @param exception
+         */
+        void onTransactionException(T request, S response, TransactionException exception);
+
+        /**
+         * on other exception
+         *
+         * @param request
+         * @param response
+         * @param exception
+         */
+        void onException(T request, S response, Exception exception);
+
+    }
+
+    public abstract class AbstractCallback<T extends AbstractTransactionRequest, S extends AbstractTransactionResponse>
+        implements Callback<T, S> {
+
+        @Override
+        public void onSuccess(T request, S response) {
+            response.setResultCode(ResultCode.Success);
+        }
+
+        @Override
+        public void onTransactionException(T request, S response,
+            TransactionException tex) {
+            response.setTransactionExceptionCode(tex.getCode());
+            response.setResultCode(ResultCode.Failed);
+            response.setMsg("TransactionException[" + tex.getMessage() + "]");
+        }
+
+        @Override
+        public void onException(T request, S response, Exception rex) {
+            response.setResultCode(ResultCode.Failed);
+            response.setMsg("RuntimeException[" + rex.getMessage() + "]");
+        }
     }
 
     /**
@@ -52,19 +108,14 @@ public abstract class AbstractExceptionHandler {
      * @param response the response
      */
     public void exceptionHandleTemplate(Callback callback, AbstractTransactionRequest request,
-                                        AbstractTransactionResponse response) {
+        AbstractTransactionResponse response) {
         try {
             callback.execute(request, response);
-            response.setResultCode(ResultCode.Success);
-
+            callback.onSuccess(request, response);
         } catch (TransactionException tex) {
-            response.setTransactionExceptionCode(tex.getCode());
-            response.setResultCode(ResultCode.Failed);
-            response.setMsg("TransactionException[" + tex.getMessage() + "]");
-
+            callback.onTransactionException(request, response, tex);
         } catch (RuntimeException rex) {
-            response.setResultCode(ResultCode.Failed);
-            response.setMsg("RuntimeException[" + rex.getMessage() + "]");
+            callback.onException(request, response, rex);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.datasource.sql.struct;
 
 import java.util.ArrayList;
@@ -60,12 +59,11 @@ public class TableMeta {
      * @return the column meta
      */
     public ColumnMeta getColumnMeta(String colName) {
-        String s = colName;
-        ColumnMeta col = allColumns.get(s);
+        ColumnMeta col = allColumns.get(colName);
         if (col == null) {
             if (colName.charAt(0) == '`') {
-                col = allColumns.get(s.substring(1, colName.length() - 1));
-            } else { col = allColumns.get("`" + s + "`"); }
+                col = allColumns.get(colName.substring(1, colName.length() - 1));
+            } else { col = allColumns.get("`" + colName + "`"); }
         }
         return col;
     }
@@ -97,7 +95,7 @@ public class TableMeta {
         // TODO: how about auto increment but not pk?
         for (Entry<String, ColumnMeta> entry : allColumns.entrySet()) {
             ColumnMeta col = entry.getValue();
-            if ("YES".equalsIgnoreCase(col.getIsAutoincrement()) == true) {
+            if ("YES".equalsIgnoreCase(col.getIsAutoincrement())) {
                 return col;
             }
         }
@@ -134,13 +132,11 @@ public class TableMeta {
      */
     @SuppressWarnings("serial")
     public List<String> getPrimaryKeyOnlyName() {
-        return new ArrayList<String>() {
-            {
-                for (Entry<String, ColumnMeta> entry : getPrimaryKeyMap().entrySet()) {
-                    add(entry.getKey());
-                }
-            }
-        };
+        List<String> list = new ArrayList<>();
+        for (Entry<String, ColumnMeta> entry : getPrimaryKeyMap().entrySet()) {
+            list.add(entry.getKey());
+        }
+        return list;
     }
 
     /**
@@ -184,7 +180,7 @@ public class TableMeta {
         boolean flag = true;
         Map<String, ColumnMeta> allColumns = getAllColumns();
         for (Entry<String, ColumnMeta> entry : allColumns.entrySet()) {
-            if (flag == true) {
+            if (flag) {
                 flag = false;
             } else {
                 sb.append(",");
@@ -219,7 +215,7 @@ public class TableMeta {
                     sb.append(String.format("KEY `%s`", index.getIndexName()));
                     break;
                 case PRIMARY:
-                    sb.append(String.format("PRIMARY KEY"));
+                    sb.append("PRIMARY KEY");
                     break;
                 case Unique:
                     sb.append(String.format("UNIQUE KEY `%s`", index.getIndexName()));
@@ -231,7 +227,7 @@ public class TableMeta {
             sb.append(" (");
             boolean f = true;
             for (ColumnMeta c : index.getValues()) {
-                if (f == true) {
+                if (f) {
                     f = false;
                 } else {
                     sb.append(",");

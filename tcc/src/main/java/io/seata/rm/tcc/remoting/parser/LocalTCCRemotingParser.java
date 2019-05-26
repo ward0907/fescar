@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,14 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.tcc.remoting.parser;
 
 import io.seata.common.exception.FrameworkException;
 import io.seata.common.util.ReflectionUtil;
 import io.seata.rm.tcc.api.LocalTCC;
 import io.seata.rm.tcc.remoting.Protocols;
-import io.seata.rm.tcc.remoting.RemotingDesc;
 import io.seata.rm.tcc.remoting.RemotingDesc;
 
 import java.util.Set;

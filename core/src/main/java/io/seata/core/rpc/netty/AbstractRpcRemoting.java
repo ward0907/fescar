@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.rpc.netty;
 
 import java.io.IOException;
@@ -36,12 +35,7 @@ import java.util.concurrent.TimeoutException;
 import io.seata.common.exception.FrameworkErrorCode;
 import io.seata.common.exception.FrameworkException;
 import io.seata.common.thread.NamedThreadFactory;
-import io.seata.core.protocol.HeartbeatMessage;
-import io.seata.core.protocol.MergeMessage;
-import io.seata.core.protocol.MessageFuture;
-import io.seata.core.protocol.RpcMessage;
 
-import io.seata.core.rpc.Disposable;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFuture;
@@ -123,9 +117,6 @@ public abstract class AbstractRpcRemoting extends ChannelDuplexHandler implement
      * Init.
      */
     public void init() {
-        //register shutdownHook
-        ShutdownHook.getInstance().addDisposable(this);
-
         timerExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -364,12 +355,12 @@ public abstract class AbstractRpcRemoting extends ChannelDuplexHandler implement
                             try {
                                 dispatch(rpcMessage.getId(), ctx, rpcMessage.getBody());
                             } catch (Throwable th) {
-                                LOGGER.error(FrameworkErrorCode.NetDispatch.errCode, th.getMessage(), th);
+                                LOGGER.error(FrameworkErrorCode.NetDispatch.getErrCode(), th.getMessage(), th);
                             }
                         }
                     });
                 } catch (RejectedExecutionException e) {
-                    LOGGER.error(FrameworkErrorCode.ThreadPoolFull.errCode,
+                    LOGGER.error(FrameworkErrorCode.ThreadPoolFull.getErrCode(),
                         "thread pool is full, current max pool size is " + messageExecutor.getActiveCount());
                     if (allowDumpStack) {
                         String name = ManagementFactory.getRuntimeMXBean().getName();
@@ -400,12 +391,12 @@ public abstract class AbstractRpcRemoting extends ChannelDuplexHandler implement
                                 try {
                                     dispatch(rpcMessage.getId(), ctx, rpcMessage.getBody());
                                 } catch (Throwable th) {
-                                    LOGGER.error(FrameworkErrorCode.NetDispatch.errCode, th.getMessage(), th);
+                                    LOGGER.error(FrameworkErrorCode.NetDispatch.getErrCode(), th.getMessage(), th);
                                 }
                             }
                         });
                     } catch (RejectedExecutionException e) {
-                        LOGGER.error(FrameworkErrorCode.ThreadPoolFull.errCode,
+                        LOGGER.error(FrameworkErrorCode.ThreadPoolFull.getErrCode(),
                             "thread pool is full, current max pool size is " + messageExecutor.getActiveCount());
                     }
                 }
@@ -415,7 +406,7 @@ public abstract class AbstractRpcRemoting extends ChannelDuplexHandler implement
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        LOGGER.error(FrameworkErrorCode.ExceptionCaught.errCode,
+        LOGGER.error(FrameworkErrorCode.ExceptionCaught.getErrCode(),
             ctx.channel() + " connect exception. " + cause.getMessage(),
             cause);
         try {

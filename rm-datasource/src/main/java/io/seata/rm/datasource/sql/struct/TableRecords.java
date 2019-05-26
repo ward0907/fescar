@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.datasource.sql.struct;
 
 import java.sql.ResultSet;
@@ -129,19 +128,17 @@ public class TableRecords {
      */
     public List<Field> pkRows() {
         final String pkName = getTableMeta().getPkName();
-        return new ArrayList<Field>() {
-            {
-                for (Row row : rows) {
-                    List<Field> fields = row.getFields();
-                    for (Field field : fields) {
-                        if (field.getName().equalsIgnoreCase(pkName)) {
-                            add(field);
-                            break;
-                        }
-                    }
+        List<Field> pkRows = new ArrayList<>();
+        for (Row row : rows) {
+            List<Field> fields = row.getFields();
+            for (Field field : fields) {
+                if (field.getName().equalsIgnoreCase(pkName)) {
+                    pkRows.add(field);
+                    break;
                 }
             }
-        };
+        }
+        return pkRows;
     }
 
     /**

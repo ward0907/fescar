@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.spring.annotation;
 
 import io.seata.common.exception.ShouldNeverHappenException;
@@ -39,7 +38,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 /**
  * The type Global transactional interceptor.
@@ -85,17 +84,14 @@ public class GlobalTransactionalInterceptor implements MethodInterceptor {
     }
 
     private Object handleGlobalLock(final MethodInvocation methodInvocation) throws Exception {
-        return globalLockTemplate.execute(new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                try {
-                    return methodInvocation.proceed();
-                } catch (Throwable e) {
-                    if (e instanceof Exception) {
-                        throw (Exception)e;
-                    } else {
-                        throw new RuntimeException(e);
-                    }
+        return globalLockTemplate.execute(() -> {
+            try {
+                return methodInvocation.proceed();
+            } catch (Throwable e) {
+                if (e instanceof Exception) {
+                    throw (Exception)e;
+                } else {
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -171,8 +167,7 @@ public class GlobalTransactionalInterceptor implements MethodInterceptor {
     private String formatMethod(Method method) {
         String paramTypes = Arrays.stream(method.getParameterTypes())
                 .map(Class::getName)
-                .reduce((p1, p2) -> String.format("%s, %s", p1, p2))
-                .orElse("");
-        return method.getName() + "(" + paramTypes + ")";
+                .collect(Collectors.joining(", ", "(", ")"));
+        return method.getName() + paramTypes;
     }
 }
